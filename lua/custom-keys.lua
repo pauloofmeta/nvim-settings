@@ -23,3 +23,6 @@ map('n',  '<F6>', [[:lua require'dap'.repl.open()<CR>]], {})
 
 -- Press CTRL + d to debugmode and remove NvimTreeToggle
 map('n', '<C-d>', [[:NvimTreeToggle<CR> :lua require'dapui'.toggle()<CR>]], {})
+
+-- Toggle Terminal
+map('n', '<C-j>', [[:FloatermToggle<CR>]], {})
