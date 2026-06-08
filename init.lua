@@ -1,3 +1,4 @@
+vim.g.mapleader = ','
 require('plugins')
 require('file-explorer')
 require('mason-config')
