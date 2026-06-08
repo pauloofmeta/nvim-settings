@@ -1,61 +1,88 @@
-return require('packer').startup(function(use)
-	-- Configuration is going here
-	use 'wbthomason/packer.nvim'
-        use 'williamboman/mason.nvim'   
-        use 'williamboman/mason-lspconfig.nvim'
-        use 'neovim/nvim-lspconfig'
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
+if not vim.loop.fs_stat(lazypath) then
+	vim.fn.system({
+		'git', 'clone', '--filter=blob:none',
+		'https://github.com/folke/lazy.nvim.git',
+		'--branch=stable',
+		lazypath,
+	})
+end
+vim.opt.rtp:prepend(lazypath)
 
-	-- Plugins for code completion
-	use 'hrsh7th/nvim-cmp'
-	use 'hrsh7th/cmp-nvim-lsp'
-	use 'hrsh7th/cmp-nvim-lua'
-	use 'hrsh7th/cmp-nvim-lsp-signature-help'
-	use 'hrsh7th/cmp-vsnip'
-	use 'hrsh7th/cmp-path'
-	use 'hrsh7th/vim-vsnip'
-	use 'hrsh7th/cmp-buffer'
+require('lazy').setup({
 
-	-- Nvimtree for file explore
-	use {
+	-- LSP
+	'williamboman/mason.nvim',
+	'williamboman/mason-lspconfig.nvim',
+	'neovim/nvim-lspconfig',
+
+	-- Code completion
+	'hrsh7th/nvim-cmp',
+	'hrsh7th/cmp-nvim-lsp',
+	'hrsh7th/cmp-nvim-lua',
+	'hrsh7th/cmp-nvim-lsp-signature-help',
+	'hrsh7th/cmp-vsnip',
+	'hrsh7th/cmp-path',
+	'hrsh7th/vim-vsnip',
+	'hrsh7th/cmp-buffer',
+
+	-- File explorer
+	{
 		'nvim-tree/nvim-tree.lua',
-		requires = {
-			'nvim-tree/nvim-web-devicons',
-		}
-	}
+		dependencies = { 'nvim-tree/nvim-web-devicons' },
+	},
 
-	-- DAP for debugging
-	use 'mfussenegger/nvim-dap'
-	use {
+	-- DAP (debugging)
+	'mfussenegger/nvim-dap',
+	{
 		'rcarriga/nvim-dap-ui',
-		requires = {
-			'mfussenegger/nvim-dap'
-		}
-	}
+		dependencies = {
+			'mfussenegger/nvim-dap',
+			'nvim-neotest/nvim-nio',
+		},
+	},
 
 	-- Theme
-	use 'Mofiqul/dracula.nvim'
+	'Mofiqul/dracula.nvim',
 
-	use {
+	-- Treesitter (v0.9 — usa parsers pré-compilados, não requer tree-sitter CLI)
+	{
 		'nvim-treesitter/nvim-treesitter',
-		run = function()
-			local ts_update = require('nvim-treesitter.install').update({ with_sync = true})
-			ts_update()
-		end,
-	}
+		tag = 'v0.9.3',
+		build = ':TSUpdate',
+		main = 'nvim-treesitter.configs',
+		opts = {
+			ensure_installed = { 'go', 'lua', 'rust', 'markdown', 'markdown_inline' },
+			sync_install = false,
+			auto_install = true,
+			highlight = {
+				enable = true,
+				disable = { 'markdown', 'markdown_inline' },
+			},
+		},
+	},
 
-	use {
+	-- Telescope
+	{
 		'nvim-telescope/telescope.nvim',
-		requires = {{'nvim-lua/plenary.nvim'}}
-	}
+		dependencies = { 'nvim-lua/plenary.nvim' },
+	},
 
 	-- Status bar
-	use {
+	{
 		'nvim-lualine/lualine.nvim',
-		requires = {
-			'kyadzani42/nvim-web-devicons',
-			opt = true,
-		}
-	}
+		dependencies = { 'nvim-tree/nvim-web-devicons' },
+	},
 
-	use 'voldikss/vim-floaterm'
-end)
+	-- Terminal
+	'voldikss/vim-floaterm',
+
+	-- Markdown preview no browser
+	{
+		'iamcco/markdown-preview.nvim',
+		build = function() vim.fn['mkdp#util#install']() end,
+		ft = { 'markdown' },
+	},
+
+})

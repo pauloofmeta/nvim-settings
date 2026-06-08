@@ -26,3 +26,12 @@ map('n', '<C-d>', [[:NvimTreeToggle<CR> :lua require'dapui'.toggle()<CR>]], {})
 
 -- Toggle Terminal
 map('n', '<C-j>', [[:FloatermToggle<CR>]], {})
+
+-- Tabs
+map('n', '<C-t>', [[:tabnew<CR>]], {})
+map('n', '<C-q>', [[:tabclose<CR>]], {})
+map('n', '<Tab>', [[:tabnext<CR>]], {})
+map('n', '<S-Tab>', [[:tabprev<CR>]], {})
+
+-- Markdown preview
+map('n', '<leader>mp', [[:MarkdownPreviewToggle<CR>]], { noremap = true, silent = true })

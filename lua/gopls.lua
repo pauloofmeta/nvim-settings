@@ -1,17 +1,15 @@
--- Require LSP Configuration from the plugin so we can attach GOPLS to it
-lspconfig = require 'lspconfig'
-util = require 'lspconfig/util'
-
-lspconfig.gopls.setup {
-	cmd = {'gopls', 'serve'},
-	filetypes = {'go', 'gomod'},
-	root_dir = util.root_pattern('go.work', 'go.mod', '.git'),
+vim.lsp.config('gopls', {
+	cmd = { 'gopls', 'serve' },
+	filetypes = { 'go', 'gomod' },
+	root_markers = { 'go.work', 'go.mod', '.git' },
 	settings = {
-		 gopls = {
+		gopls = {
 			analyses = {
-				 unusedparams = true,
+				unusedparams = true,
 			},
 			staticcheck = true,
-		 },
-	}, 
-}
+		},
+	},
+})
+
+vim.lsp.enable('gopls')
