@@ -1,4 +1,7 @@
 vim.g.mapleader = ','
+
+vim.opt.clipboard = 'unnamedplus'
+
 require('plugins')
 require('file-explorer')
 require('mason-config')

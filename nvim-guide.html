@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guia Neovim — Paulo</title>
+  <style>
+    :root {
+      --bg: #282a36;
+      --bg2: #1e1f29;
+      --bg3: #21222c;
+      --surface: #343746;
+      --border: #44475a;
+      --fg: #f8f8f2;
+      --comment: #6272a4;
+      --cyan: #8be9fd;
+      --green: #50fa7b;
+      --orange: #ffb86c;
+      --pink: #ff79c6;
+      --purple: #bd93f9;
+      --red: #ff5555;
+      --yellow: #f1fa8c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg2);
+      color: var(--fg);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--bg3);
+      border-bottom: 2px solid var(--purple);
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header .logo {
+      font-size: 36px;
+    }
+
+    header h1 {
+      font-size: 26px;
+      color: var(--purple);
+      font-weight: 700;
+    }
+
+    header p {
+      color: var(--comment);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .badge {
+      margin-left: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: var(--comment);
+    }
+
+    .badge span { color: var(--green); }
+
+    nav {
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+    }
+
+    nav a {
+      color: var(--comment);
+      text-decoration: none;
+      padding: 12px 16px;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      font-size: 13px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--cyan);
+      border-bottom-color: var(--cyan);
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    section {
+      margin-bottom: 48px;
+    }
+
+    section h2 {
+      font-size: 18px;
+      color: var(--pink);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section h2::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .card h3 {
+      font-size: 13px;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card h3 .icon { font-size: 16px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    tr:not(:last-child) td {
+      border-bottom: 1px solid var(--bg3);
+    }
+
+    td {
+      padding: 7px 4px;
+      vertical-align: top;
+    }
+
+    td:first-child {
+      width: 42%;
+    }
+
+    .desc {
+      color: var(--comment);
+      font-size: 13px;
+      padding-left: 12px;
+    }
+
+    kbd {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: 2px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 7px;
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--cyan);
+      white-space: nowrap;
+    }
+
+    kbd.leader { color: var(--yellow); }
+    kbd.mode   { color: var(--green); }
+    kbd.danger { color: var(--red); }
+
+    .tip {
+      background: var(--bg);
+      border-left: 3px solid var(--purple);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--comment);
+    }
+
+    .tip strong { color: var(--purple); }
+
+    .tip code {
+      background: var(--surface);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--cyan);
+      font-size: 12px;
+    }
+
+    .mode-flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .mode-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 18px;
+      text-align: center;
+    }
+
+    .mode-node .name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .mode-node .keys {
+      font-size: 11px;
+      color: var(--comment);
+      margin-top: 3px;
+    }
+
+    .mode-node.normal .name { color: var(--green); }
+    .mode-node.insert .name { color: var(--cyan); }
+    .mode-node.visual .name { color: var(--purple); }
+    .mode-node.command .name { color: var(--orange); }
+
+    .arrow {
+      color: var(--comment);
+      font-size: 18px;
+    }
+
+    .plugins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .plugin-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .plugin-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .plugin-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 3px;
+    }
+
+    .plugin-desc {
+      font-size: 12px;
+      color: var(--comment);
+    }
+
+    .search-bar {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 14px;
+      margin-bottom: 24px;
+      outline: none;
+    }
+
+    .search-bar:focus {
+      border-color: var(--purple);
+    }
+
+    .search-bar::placeholder { color: var(--comment); }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .tag.lsp    { background: #3d2b8e; color: var(--purple); }
+    .tag.debug  { background: #5c2626; color: var(--red); }
+    .tag.nav    { background: #1a4a2e; color: var(--green); }
+    .tag.editor { background: #3d3a1f; color: var(--yellow); }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      color: var(--comment);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+
+    footer span { color: var(--purple); }
+
+    @media (max-width: 600px) {
+      header { padding: 20px; flex-wrap: wrap; }
+      .badge { margin-left: 0; }
+      nav { padding: 0 16px; }
+      main { padding: 24px 16px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⬡</div>
+  <div>
+    <h1>Neovim — Guia Pessoal</h1>
+    <p>Atalhos e fluxo de trabalho baseados nas suas configurações</p>
+  </div>
+  <div class="badge">leader = <span>,</span> &nbsp;|&nbsp; tema: <span>Dracula</span></div>
+</header>
+
+<nav>
+  <a href="#modos" class="active">Modos</a>
+  <a href="#basico">Básico</a>
+  <a href="#abas">Abas</a>
+  <a href="#splits">Splits</a>
+  <a href="#explorer">Explorer</a>
+  <a href="#busca">Busca</a>
+  <a href="#lsp">LSP</a>
+  <a href="#completion">Completion</a>
+  <a href="#debug">Debug</a>
+  <a href="#terminal">Terminal</a>
+  <a href="#markdown">Markdown</a>
+  <a href="#plugins">Plugins</a>
+</nav>
+
+<main>
+
+  <input class="search-bar" type="search" placeholder="Pesquisar atalho ou comando..." id="search" />
+
+  <!-- MODOS -->
+  <section id="modos">
+    <h2>⬡ Modos</h2>
+    <div class="mode-flow">
+      <div class="mode-node normal">
+        <div class="name">NORMAL</div>
+        <div class="keys">estado padrão</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="mode-node insert">
+        <div class="name">INSERT</div>
+        <div class="keys">i / a / o / I / A / O</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="mode-node normal">
+        <div class="name">NORMAL</div>
+        <div class="keys"><kbd>Esc</kbd> ou <kbd>Ctrl+[</kbd></div>
+      </div>
+    </div>
+    <div class="mode-flow" style="margin-top:12px">
+      <div class="mode-node normal">
+        <div class="name">NORMAL</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="mode-node visual">
+        <div class="name">VISUAL</div>
+        <div class="keys">v / V / Ctrl+v</div>
+      </div>
+      <div class="arrow">&nbsp;&nbsp;</div>
+      <div class="mode-node normal">
+        <div class="name">NORMAL</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="mode-node command">
+        <div class="name">COMMAND</div>
+        <div class="keys">: (dois pontos)</div>
+      </div>
+    </div>
+    <div class="tip"><strong>Dica:</strong> se travar em modo desconhecido, pressione <kbd>Esc</kbd> duas vezes para voltar ao Normal.</div>
+  </section>
+
+  <!-- BÁSICO -->
+  <section id="basico">
+    <h2>⌨ Básico &amp; Arquivo</h2>
+    <div class="grid">
+
+      <div class="card">
+        <h3><span class="icon">💾</span> Salvar &amp; Sair</h3>
+        <table>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>s</kbd></td><td class="desc">Salvar arquivo</td></tr>
+          <tr><td><kbd>:w</kbd></td><td class="desc">Salvar</td></tr>
+          <tr><td><kbd>:q</kbd></td><td class="desc">Fechar janela</td></tr>
+          <tr><td><kbd>:wq</kbd> / <kbd>:x</kbd></td><td class="desc">Salvar e fechar</td></tr>
+          <tr><td><kbd class="danger">:q!</kbd></td><td class="desc">Fechar sem salvar</td></tr>
+          <tr><td><kbd class="danger">:qa!</kbd></td><td class="desc">Fechar tudo sem salvar</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🧭</span> Navegação Básica</h3>
+        <table>
+          <tr><td><kbd>h</kbd> <kbd>j</kbd> <kbd>k</kbd> <kbd>l</kbd></td><td class="desc">← ↓ ↑ →</td></tr>
+          <tr><td><kbd>w</kbd> / <kbd>b</kbd></td><td class="desc">Próxima / anterior palavra</td></tr>
+          <tr><td><kbd>0</kbd> / <kbd>^</kbd></td><td class="desc">Início da linha / primeiro char</td></tr>
+          <tr><td><kbd>$</kbd></td><td class="desc">Fim da linha</td></tr>
+          <tr><td><kbd>gg</kbd> / <kbd>G</kbd></td><td class="desc">Início / fim do arquivo</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>u</kbd> / <kbd>d</kbd></td><td class="desc">Scroll meio-página ↑ / ↓</td></tr>
+          <tr><td><kbd>:{n}</kbd></td><td class="desc">Ir para linha n</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">✂️</span> Edição</h3>
+        <table>
+          <tr><td><kbd>i</kbd> / <kbd>a</kbd></td><td class="desc">Insert antes / depois cursor</td></tr>
+          <tr><td><kbd>I</kbd> / <kbd>A</kbd></td><td class="desc">Insert início / fim da linha</td></tr>
+          <tr><td><kbd>o</kbd> / <kbd>O</kbd></td><td class="desc">Nova linha abaixo / acima</td></tr>
+          <tr><td><kbd>dd</kbd></td><td class="desc">Deletar linha</td></tr>
+          <tr><td><kbd>yy</kbd></td><td class="desc">Copiar linha</td></tr>
+          <tr><td><kbd>p</kbd> / <kbd>P</kbd></td><td class="desc">Colar abaixo / acima</td></tr>
+          <tr><td><kbd>u</kbd> / <kbd>Ctrl</kbd>+<kbd>r</kbd></td><td class="desc">Desfazer / Refazer</td></tr>
+          <tr><td><kbd>.</kbd></td><td class="desc">Repetir última ação</td></tr>
+          <tr><td><kbd>ciw</kbd></td><td class="desc">Substituir palavra inteira</td></tr>
+          <tr><td><kbd>di"</kbd></td><td class="desc">Deletar conteúdo dentro de ""</td></tr>
+        </table>
+        <div class="tip"><strong>Clipboard global</strong> ativo: tudo copiado/colado já usa o clipboard do sistema.</div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🔍</span> Busca no Arquivo</h3>
+        <table>
+          <tr><td><kbd>/padrão</kbd></td><td class="desc">Buscar para frente</td></tr>
+          <tr><td><kbd>?padrão</kbd></td><td class="desc">Buscar para trás</td></tr>
+          <tr><td><kbd>n</kbd> / <kbd>N</kbd></td><td class="desc">Próxima / anterior ocorrência</td></tr>
+          <tr><td><kbd>*</kbd></td><td class="desc">Buscar palavra sob cursor</td></tr>
+          <tr><td><kbd>:noh</kbd></td><td class="desc">Limpar highlight de busca</td></tr>
+          <tr><td><kbd>:%s/old/new/g</kbd></td><td class="desc">Substituir tudo no arquivo</td></tr>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ABAS -->
+  <section id="abas">
+    <h2>📑 Abas (Tabs)</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon">🗂</span> Gerenciar Abas</h3>
+        <table>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>t</kbd></td><td class="desc">Nova aba</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>q</kbd></td><td class="desc">Fechar aba atual</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td class="desc">Próxima aba</td></tr>
+          <tr><td><kbd>Shift</kbd>+<kbd>Tab</kbd></td><td class="desc">Aba anterior</td></tr>
+          <tr><td><kbd>:tabnew arquivo</kbd></td><td class="desc">Abrir arquivo em nova aba</td></tr>
+          <tr><td><kbd>:tabmove {n}</kbd></td><td class="desc">Mover aba para posição n</td></tr>
+          <tr><td><kbd>:tabs</kbd></td><td class="desc">Listar todas as abas</td></tr>
+        </table>
+        <div class="tip"><strong>Dica:</strong> use <code>:tabnew</code> e depois <kbd>,ff</kbd> (Telescope) para abrir um arquivo na nova aba.</div>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">⚡</span> Fluxo com Abas</h3>
+        <table>
+          <tr><td><kbd>:tabe %</kbd></td><td class="desc">Abrir arquivo atual em nova aba</td></tr>
+          <tr><td><kbd>gt</kbd> / <kbd>gT</kbd></td><td class="desc">Próxima / anterior (alternativo)</td></tr>
+          <tr><td><kbd>2gt</kbd></td><td class="desc">Ir para aba número 2</td></tr>
+          <tr><td><kbd>:tabonly</kbd></td><td class="desc">Fechar todas exceto a atual</td></tr>
+        </table>
+        <div class="tip"><strong>Workflow sugerido:</strong> abra cada contexto em uma aba (<code>Ctrl+t</code>) e use <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd> para navegar.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPLITS -->
+  <section id="splits">
+    <h2>⬜ Splits (Divisão de Janela)</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon">↕</span> Criar Splits</h3>
+        <table>
+          <tr><td><kbd>:sp</kbd> / <kbd>:split</kbd></td><td class="desc">Dividir horizontalmente</td></tr>
+          <tr><td><kbd>:vsp</kbd> / <kbd>:vsplit</kbd></td><td class="desc">Dividir verticalmente</td></tr>
+          <tr><td><kbd>:sp arquivo</kbd></td><td class="desc">Abrir arquivo em split horizontal</td></tr>
+          <tr><td><kbd>:vsp arquivo</kbd></td><td class="desc">Abrir arquivo em split vertical</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3><span class="icon">🖱</span> Navegar entre Splits</h3>
+        <table>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>h/j/k/l</kbd></td><td class="desc">Mover entre painéis</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>w</kbd></td><td class="desc">Próximo painel (ciclar)</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>=</kbd></td><td class="desc">Equalizar tamanhos</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>|</kbd></td><td class="desc">Maximizar largura</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>_</kbd></td><td class="desc">Maximizar altura</td></tr>
+          <tr><td><kbd>:close</kbd></td><td class="desc">Fechar painel atual</td></tr>
+          <tr><td><kbd>:only</kbd></td><td class="desc">Fechar todos exceto o atual</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPLORER -->
+  <section id="explorer">
+    <h2>🗂 File Explorer (nvim-tree)</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon">📁</span> Abrir Explorer</h3>
+        <table>
+          <tr><td><kbd>n</kbd></td><td class="desc">Toggle nvim-tree (abre/fecha)</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>d</kbd></td><td class="desc">Toggle tree + modo debug UI</td></tr>
+        </table>
+        <div class="tip"><strong>Nota:</strong> a tecla <kbd>n</kbd> foi remapeada — para busca normal, use <kbd>/</kbd>.</div>
+      </div>
+      <div class="card">
+        <h3><span class="icon">🧭</span> Navegação na Tree</h3>
+        <table>
+          <tr><td><kbd>Enter</kbd></td><td class="desc">Abrir arquivo / expandir pasta</td></tr>
+          <tr><td><kbd>o</kbd></td><td class="desc">Abrir arquivo</td></tr>
+          <tr><td><kbd>a</kbd></td><td class="desc">Criar arquivo ou pasta</td></tr>
+          <tr><td><kbd>d</kbd></td><td class="desc">Deletar arquivo</td></tr>
+          <tr><td><kbd>r</kbd></td><td class="desc">Renomear arquivo</td></tr>
+          <tr><td><kbd>c</kbd> / <kbd>p</kbd></td><td class="desc">Copiar / Colar</td></tr>
+          <tr><td><kbd>x</kbd></td><td class="desc">Cortar arquivo</td></tr>
+          <tr><td><kbd>I</kbd></td><td class="desc">Toggle arquivos ocultos</td></tr>
+          <tr><td><kbd>R</kbd></td><td class="desc">Atualizar tree</td></tr>
+          <tr><td><kbd>q</kbd></td><td class="desc">Fechar explorer</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUSCA -->
+  <section id="busca">
+    <h2>🔭 Busca de Arquivos (Telescope)</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon">🔍</span> Atalhos Telescope</h3>
+        <table>
+          <tr><td><kbd class="leader">,</kbd><kbd>ff</kbd></td><td class="desc">Buscar arquivos (incluindo ocultos)</td></tr>
+          <tr><td><kbd class="leader">,</kbd><kbd>fg</kbd></td><td class="desc">Live grep — buscar texto em todo projeto</td></tr>
+        </table>
+        <div class="tip"><strong>Leader key</strong> = <kbd class="leader">,</kbd> (vírgula)</div>
+      </div>
+      <div class="card">
+        <h3><span class="icon">🎛</span> Dentro do Telescope</h3>
+        <table>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>n/p</kbd></td><td class="desc">Navegar resultados ↓ / ↑</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>x</kbd></td><td class="desc">Abrir em split horizontal</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>v</kbd></td><td class="desc">Abrir em split vertical</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>t</kbd></td><td class="desc">Abrir em nova aba</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td class="desc">Confirmar seleção</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td class="desc">Fechar Telescope</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- LSP -->
+  <section id="lsp">
+    <h2>λ LSP — Go &amp; TypeScript</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon">🔗</span> Navegação de Código <span class="tag lsp">LSP</span></h3>
+        <table>
+          <tr><td><kbd>gd</kbd></td><td class="desc">Ir para definição</td></tr>
+          <tr><td><kbd>gD</kbd></td><td class="desc">Ir para declaração</td></tr>
+          <tr><td><kbd>gi</kbd></td><td class="desc">Ir para implementação</td></tr>
+          <tr><td><kbd>gr</kbd></td><td class="desc">Ver referências</td></tr>
+          <tr><td><kbd>K</kbd></td><td class="desc">Hover — documentação inline</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>k</kbd></td><td class="desc">Assinatura da função</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3><span class="icon">🛠</span> Ações LSP <span class="tag lsp">LSP</span></h3>
+        <table>
+          <tr><td><kbd>&lt;leader&gt;rn</kbd></td><td class="desc">Rename symbol</td></tr>
+          <tr><td><kbd>&lt;leader&gt;ca</kbd></td><td class="desc">Code action</td></tr>
+          <tr><td><kbd>&lt;leader&gt;e</kbd></td><td class="desc">Ver diagnóstico da linha</td></tr>
+          <tr><td><kbd>[d</kbd> / <kbd>]d</kbd></td><td class="desc">Diagnóstico anterior / próximo</td></tr>
+          <tr><td><kbd>:Mason</kbd></td><td class="desc">Gerenciar LSP servers</td></tr>
+          <tr><td><kbd>:LspInfo</kbd></td><td class="desc">Ver LSP ativo no buffer</td></tr>
+        </table>
+        <div class="tip"><strong>LSPs ativos:</strong> <code>gopls</code> (Go) e <code>ts_ls</code> (TypeScript/JavaScript).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPLETION -->
+  <section id="completion">
+    <h2>⋗ Code Completion (nvim-cmp)</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon">💡</span> Sugestões de Código</h3>
+        <table>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Space</kbd></td><td class="desc">Abrir sugestões manualmente</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td class="desc">Próximo item na lista</td></tr>
+          <tr><td><kbd>Shift</kbd>+<kbd>Tab</kbd></td><td class="desc">Item anterior na lista</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td class="desc">Confirmar e aplicar sugestão</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>e</kbd></td><td class="desc">Fechar menu de sugestões</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3><span class="icon">🏷</span> Fontes de Completion</h3>
+        <table>
+          <tr><td><kbd>λ</kbd></td><td class="desc">nvim_lsp — completions do servidor</td></tr>
+          <tr><td><kbd>⋗</kbd></td><td class="desc">vsnip — snippets</td></tr>
+          <tr><td><kbd>b</kbd></td><td class="desc">buffer — palavras do buffer atual</td></tr>
+          <tr><td><kbd>p</kbd></td><td class="desc">path — caminhos de arquivos</td></tr>
+        </table>
+        <div class="tip">As fontes são exibidas no ícone à esquerda de cada sugestão no menu.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEBUG -->
+  <section id="debug">
+    <h2>🐛 Debug (nvim-dap + dapui)</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon">▶</span> Controle do Debug <span class="tag debug">DAP</span></h3>
+        <table>
+          <tr><td><kbd>F5</kbd></td><td class="desc">Iniciar / Continuar debug</td></tr>
+          <tr><td><kbd>F10</kbd></td><td class="desc">Step over (pular para próxima linha)</td></tr>
+          <tr><td><kbd>F11</kbd></td><td class="desc">Step into (entrar na função)</td></tr>
+          <tr><td><kbd>F12</kbd></td><td class="desc">Step out (sair da função)</td></tr>
+          <tr><td><kbd>F6</kbd></td><td class="desc">Abrir REPL do debug</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3><span class="icon">🔴</span> Breakpoints &amp; UI <span class="tag debug">DAP</span></h3>
+        <table>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>b</kbd></td><td class="desc">Toggle breakpoint na linha atual</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>l</kbd></td><td class="desc">Adicionar Log Point (mensagem de log)</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>d</kbd></td><td class="desc">Toggle tree + abrir DapUI</td></tr>
+        </table>
+        <div class="tip"><strong>Go:</strong> o adaptador <code>delve</code> é configurado automaticamente. Certifique-se que <code>dlv</code> está instalado (<code>go install github.com/go-delve/delve/cmd/dlv@latest</code>).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TERMINAL -->
+  <section id="terminal">
+    <h2>💻 Terminal (Floaterm)</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon">⬛</span> Terminal Flutuante</h3>
+        <table>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>j</kbd></td><td class="desc">Toggle terminal flutuante (abre/fecha)</td></tr>
+        </table>
+        <div class="tip">
+          <strong>Dentro do terminal:</strong><br/>
+          Use <code>Ctrl+j</code> novamente para esconder sem fechar.<br/>
+          Para sair do modo insert no terminal: <kbd>Ctrl+\</kbd> <kbd>Ctrl+n</kbd>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARKDOWN -->
+  <section id="markdown">
+    <h2>📝 Markdown Preview</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon">👁</span> Preview no Browser</h3>
+        <table>
+          <tr><td><kbd class="leader">,</kbd><kbd>mp</kbd></td><td class="desc">Toggle Markdown Preview no browser</td></tr>
+        </table>
+        <div class="tip">
+          Funciona apenas em arquivos <code>.md</code>. O treesitter para markdown está <strong>desativado</strong> por um bug conhecido no Neovim 0.12+ com fenced code blocks.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLUGINS -->
+  <section id="plugins">
+    <h2>📦 Plugins Instalados (lazy.nvim)</h2>
+    <div class="plugins-grid">
+      <div class="plugin-card">
+        <div class="plugin-icon">λ</div>
+        <div>
+          <div class="plugin-name">nvim-lspconfig + Mason</div>
+          <div class="plugin-desc">LSP servers: gopls (Go), ts_ls (TS/JS). Gerenciado pelo Mason.</div>
+        </div>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-icon">⋗</div>
+        <div>
+          <div class="plugin-name">nvim-cmp + vsnip</div>
+          <div class="plugin-desc">Autocompletion com suporte a LSP, snippets, buffer e paths.</div>
+        </div>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-icon">📁</div>
+        <div>
+          <div class="plugin-name">nvim-tree</div>
+          <div class="plugin-desc">File explorer lateral. Toggle com <kbd>n</kbd>.</div>
+        </div>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-icon">🔭</div>
+        <div>
+          <div class="plugin-name">Telescope</div>
+          <div class="plugin-desc">Fuzzy finder para arquivos e grep. <kbd>,ff</kbd> e <kbd>,fg</kbd>.</div>
+        </div>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-icon">🐛</div>
+        <div>
+          <div class="plugin-name">nvim-dap + dapui</div>
+          <div class="plugin-desc">Debug adapter. UI abre automaticamente ao iniciar debug.</div>
+        </div>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-icon">🌳</div>
+        <div>
+          <div class="plugin-name">nvim-treesitter v0.9.3</div>
+          <div class="plugin-desc">Syntax highlighting para Go, Lua, Rust. Markdown desativado.</div>
+        </div>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-icon">📊</div>
+        <div>
+          <div class="plugin-name">lualine</div>
+          <div class="plugin-desc">Status bar informativa na parte inferior.</div>
+        </div>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-icon">⬛</div>
+        <div>
+          <div class="plugin-name">vim-floaterm</div>
+          <div class="plugin-desc">Terminal flutuante. Toggle com <kbd>Ctrl+j</kbd>.</div>
+        </div>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-icon">📝</div>
+        <div>
+          <div class="plugin-name">markdown-preview.nvim</div>
+          <div class="plugin-desc">Preview de Markdown no browser. <kbd>,mp</kbd>.</div>
+        </div>
+      </div>
+      <div class="plugin-card">
+        <div class="plugin-icon">🧛</div>
+        <div>
+          <div class="plugin-name">Dracula Theme</div>
+          <div class="plugin-desc">Tema de cores padrão do setup.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Gerado para <span>Paulo Henrique</span> · Neovim com lazy.nvim · Tema Dracula
+</footer>
+
+<script>
+  // Nav active state via scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Search filter
+  const searchInput = document.getElementById('search');
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.toLowerCase().trim();
+    document.querySelectorAll('tr').forEach(row => {
+      row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
+    });
+    document.querySelectorAll('.tip, .plugin-card').forEach(el => {
+      el.style.display = (!q || el.textContent.toLowerCase().includes(q)) ? '' : 'none';
+    });
+    document.querySelectorAll('section').forEach(sec => {
+      const visible = [...sec.querySelectorAll('tr, .plugin-card')]
+        .some(el => el.style.display !== 'none');
+      sec.style.display = (!q || visible) ? '' : 'none';
+    });
+  });
+
+  // Smooth scroll for nav links
+  navLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
